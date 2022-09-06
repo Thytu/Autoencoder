@@ -2,3 +2,5 @@
 *.pt
 *.pth
 data/
+log.txt
+.ipynb_checkpoints
