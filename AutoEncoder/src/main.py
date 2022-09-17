@@ -1,4 +1,4 @@
-from os import path
+import os
 import torch
 import matplotlib.pyplot as plt
 
@@ -9,20 +9,33 @@ from AutoEncoder import AutoEncoder
 from training import train, test
 from data_handler import get_testing_data, get_training_data
 
+
+def plot_loss_evolution(epochs, train_losses, test_losses, save_fig_as: str = "evolution_of_the_losses.png"):
+    plt.plot(range(epochs), train_losses, 'g', label="Training loss")
+    plt.plot(range(epochs), test_losses, 'b', label="validation loss")
+
+    plt.title('Training and Validation loss')
+
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+
+    plt.legend()
+
+    plt.show()
+    plt.savefig(save_fig_as)
+
+
 def main():
     EPOCHS = 100
-    MODEL_OUTPUT_PATH = "autoencoder.pt"
+    MODEL_OUTPUT_PATH = os.getenv("MODEL_OUTPUT_PATH", "autoencoder.pt")
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     criterion = nn.MSELoss()
 
     autoencoder = AutoEncoder().to(device)
-    # if path.exists(MODEL_OUTPUT_PATH):
-    #     autoencoder.load_state_dict(torch.load(MODEL_OUTPUT_PATH))
-    #     print("loading intermediate weights")
-    # else:
-    #     print("loading new weights")
+    if os.path.exists(MODEL_OUTPUT_PATH) and not os.getenv("OVERWRITE_MODEL", None):
+        autoencoder.load_state_dict(torch.load(MODEL_OUTPUT_PATH))
 
     optimizer = optim.Adam(autoencoder.parameters(), lr=0.001)
 
@@ -45,14 +58,8 @@ def main():
 
     torch.save(autoencoder.state_dict(), MODEL_OUTPUT_PATH)
 
-    plt.plot(range(EPOCHS), train_losses, 'g', label='Training loss')
-    plt.plot(range(EPOCHS), test_losses, 'b', label='validation loss')
-    plt.title('Training and Validation loss')
-    plt.xlabel('Epochs')
-    plt.ylabel('Loss')
-    plt.legend()
-    plt.show()
-    plt.savefig('evolution_of_the_losses.png')
+    plot_loss_evolution(EPOCHS, train_losses, test_losses)
+
 
 if __name__ == "__main__":
     main()
