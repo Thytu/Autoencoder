@@ -17,7 +17,7 @@ def train(dataloader, autoencoder, criterion, optimizer, device='cpu') -> float:
 
         optimizer.step()
 
-        train_loss += loss.item() * images.size(0)
+        train_loss += loss.item()
           
     train_loss = train_loss / len(dataloader)
 
@@ -35,7 +35,7 @@ def test(dataloader, autoencoder, criterion, device='cpu') -> float:
 
             loss = criterion(outputs, images)
 
-            test_loss += loss.item() * images.size(0)
+            test_loss += loss.item()
             
         test_loss = test_loss / len(dataloader)
 
